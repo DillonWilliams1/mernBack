@@ -92,7 +92,15 @@ router.delete('/clearTable', (req, res) => {
     });
 });
 
-
+// API to get all orders
+router.get('/order', async (req, res) => {
+  try {
+      const orders = await order1Model.find();
+      res.json(orders);
+  } catch (error) {
+      res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
 
 // Login route
 router.post("/api/auth", async (req, res) => {
