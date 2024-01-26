@@ -93,13 +93,18 @@ router.delete('/clearTable', (req, res) => {
 });
 
 // API to get all orders
-router.get('/order', async (req, res) => {
-  try {
-      const orders = await order1Model.find();
-      res.json(orders);
-  } catch (error) {
-      res.status(500).json({ error: 'Internal Server Error' });
-  }
+router.post('/orders', (req, res) => {
+  const items = req.body.items;
+  const price = req.body.price;
+
+  // Here, you would typically save the order to your database.
+  // This is a placeholder implementation.
+  console.log('Received order:');
+  console.log('Items:', items);
+  console.log('Total price:', price);
+
+  // Send a response back to the client
+  res.json({ message: 'Order received' });
 });
 
 // Login route
