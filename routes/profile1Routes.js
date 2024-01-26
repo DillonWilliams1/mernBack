@@ -5,6 +5,7 @@ const SelectedMenu1Model =require('../models/Profile1/SelectedMenu1')
 const { User , validate } = require("../models/Profile1/User1");
 const bcrypt = require("bcrypt");
 const Joi = require("joi");
+const Order = require('../models/Profile1/order1');
 
 //crud funtions
 
@@ -92,20 +93,31 @@ router.delete('/clearTable', (req, res) => {
     });
 });
 
-// API to get all orders
-router.post('/orders', (req, res) => {
-  const items = req.body.items;
-  const price = req.body.price;
 
-  // Here, you would typically save the order to your database.
-  // This is a placeholder implementation.
-  console.log('Received order:');
-  console.log('Items:', items);
-  console.log('Total price:', price);
 
-  // Send a response back to the client
-  res.json({ message: 'Order received' });
+
+router.post('/orders', async (req, res) => {
+  try {
+    const { items, price } = req.body;
+
+    // Create a new order instance
+    const newOrder = new Order({
+      items,
+      price,
+    });
+
+    // Save the order to the database
+    await newOrder.save();
+
+    // Send a response back to the Flutter app
+    res.status(200).json({ status: 'received' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ status: 'error' });
+  }
 });
+
+
 
 // Login route
 router.post("/api/auth", async (req, res) => {
