@@ -98,12 +98,11 @@ router.delete('/clearTable', (req, res) => {
 
 router.post('/orders', async (req, res) => {
   try {
-    const { items, price } = req.body;
+    const { items, price, name, phone, id } = req.body;
 
     // Create a new order instance
     const newOrder = new Order({
-      items,
-      price,
+      items,price,name,phone,id
     });
 
     // Save the order to the database
@@ -117,6 +116,11 @@ router.post('/orders', async (req, res) => {
   }
 });
 
+router.get('/orderres', (req, res) => {
+  Order.find({})
+    .then(data => res.json(data))
+    .catch(err => res.status(500).json({ error: err.message }));
+});
 
 
 // Login route
