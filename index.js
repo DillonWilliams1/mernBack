@@ -1,6 +1,8 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const bodyParser = require('body-parser');
+
 const profile1Routes = require('./routes/profile1Routes');
 const profile2Routes = require('./routes/profile2Routes')
 const profile3Routes = require('./routes/profile3Routes')
@@ -14,7 +16,8 @@ const app = express();
 
 app.use(express.json());
 app.use(cors());
-
+// Middleware to parse JSON bodies
+app.use(bodyParser.json());
 mongoose.connect('mongodb+srv://greeneats:nsbm2023@cluster0.dpgxkwe.mongodb.net/greeneats?retryWrites=true&w=majority')
   .then(() => {
     console.log('Connected to MongoDB Atlas');
