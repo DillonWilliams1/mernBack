@@ -128,7 +128,7 @@ router.post('/notify-flutter', (req, res) => {
     console.log('Notification received from Flutter.');
 
     // Send a response back to the Flutter app
-    res.status(200).json({ status: 'received' });
+    res.status(200).json({ status: 'placed' });
   } catch (error) {
     console.error(error);
     res.status(500).json({ status: 'error' });
