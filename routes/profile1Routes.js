@@ -6,17 +6,17 @@ const { User , validate } = require("../models/Profile1/User1");
 const bcrypt = require("bcrypt");
 const Joi = require("joi");
 const Order = require('../models/Profile1/order1');
+const Orderhistory = require('../models/Profile1/Orderhistory1');
 const admin = require('firebase-admin');
 
-const serviceAccount = require('../test-project-6d955-firebase-adminsdk-3evvf-e3b3dc41af.json');
 
-
+const serviceAccount = require('../mongoappv2-firebase-adminsdk-rg25d-9ed858f9bf.json');
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
 });
 
-router.post('/notify-flutter', (req, res) => {
+router.post('/accept', (req, res) => {
   const message = {
     data: {
       status: 'received'
@@ -36,6 +36,29 @@ router.post('/notify-flutter', (req, res) => {
     });
 });
 
+
+router.post('/reject', (req, res) => {
+  const message = {
+    data: {
+      status: 'rejected'
+    },
+    // Use the FCM token of the Flutter app instance here
+    token: 'fQgtH8WGS7e7z33QsNVINf:APA91bEp1FKAKCYZKG2ZedNv1M7fXpauejx9HD76eicyUMeuSglpxYTD1m0NxozapvRyDVLO4Pj4diIgqbt7bdCYO0EcHBRLzyjQtV5q-kdHoWXtOZSuHq5B0jYp_Lux5V9KrPzXxb42',
+  };
+
+  admin.messaging().send(message)
+    .then((response) => {
+      console.log('Successfully sent message:', response);
+      res.status(200).send('Notification sent successfully');
+    })
+    .catch((error) => {
+      console.log('Error sending message:', error);
+      res.status(500).send('Error sending notification');
+    });
+});
+
+
+//crud funtions
 router.get('/', (req, res) => {
   Profile1Model.find({})
     .then(data => res.json(data))
@@ -124,11 +147,11 @@ router.delete('/clearTable', (req, res) => {
 
 router.post('/orders', async (req, res) => {
   try {
-    const { items, price, name, phone, id } = req.body;
+    const { items, price, name, phone, id, token } = req.body;
 
     // Create a new order instance
     const newOrder = new Order({
-      items,price,name,phone,id
+      items,price,name,phone,id,token
     });
 
     // Save the order to the database
@@ -147,6 +170,65 @@ router.get('/orderres', (req, res) => {
     .then(data => res.json(data))
     .catch(err => res.status(500).json({ error: err.message }));
 });
+
+
+router.post('/Orderhistory', async (req, res) => {
+  try {
+    const { orderId } = req.body;
+
+    // Find the order by ID
+    const order = await Order.findById(orderId);
+    if (!order) {
+      return res.status(404).send('Order not found');
+    }
+
+    // Create a new accepted order entry
+    const  orderhistory= new Orderhistory({
+      orderId: order._id,
+      timestamp: Date.now(),
+      items: order.items,
+      price: order.price,
+      name: order.name,
+      phone: order.phone,
+      id: order.id,
+      // Add any additional fields you want to store for accepted orders
+    });
+
+
+    await orderhistory.save();
+
+    // Optionally, you can remove the accepted order from the original orders table
+    await Order.findByIdAndDelete(orderId);
+
+    res.status(200).send('Order accepted and stored in another table');
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+// Add this route to handle deleting orders
+router.delete('/orderres/:orderId', async (req, res) => {
+  try {
+    const { orderId } = req.params;
+
+    // Remove the order from the Order table based on the orderId
+    await Order.findByIdAndDelete(orderId);
+
+    res.status(200).send('Order rejected and removed from the table');
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+
+router.get('/orderhistorytable', (req, res) => {
+  Orderhistory.find({})
+    .then(data => res.json(data))
+    .catch(err => res.status(500).json({ error: err.message }));
+});
+
 
 
 
