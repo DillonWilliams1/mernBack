@@ -6,9 +6,32 @@ const { User , validate } = require("../models/Profile1/User1");
 const bcrypt = require("bcrypt");
 const Joi = require("joi");
 const Order = require('../models/Profile1/order1');
+const admin = require('firebase-admin');
+//crud funtions
+
+
 
 //crud funtions
 
+router.post('/notify-flutter', (req, res) => {
+  const message = {
+    data: {
+      status: 'received'
+    },
+    // Use the FCM token of the Flutter app instance here
+    token: 'fQgtH8WGS7e7z33QsNVINf:APA91bEp1FKAKCYZKG2ZedNv1M7fXpauejx9HD76eicyUMeuSglpxYTD1m0NxozapvRyDVLO4Pj4diIgqbt7bdCYO0EcHBRLzyjQtV5q-kdHoWXtOZSuHq5B0jYp_Lux5V9KrPzXxb42',
+  };
+
+  admin.messaging().send(message)
+    .then((response) => {
+      console.log('Successfully sent message:', response);
+      res.status(200).send('Notification sent successfully');
+    })
+    .catch((error) => {
+      console.log('Error sending message:', error);
+      res.status(500).send('Error sending notification');
+    });
+});
 
 router.get('/', (req, res) => {
   Profile1Model.find({})
@@ -122,18 +145,7 @@ router.get('/orderres', (req, res) => {
     .catch(err => res.status(500).json({ error: err.message }));
 });
 
-router.post('/notify-flutter', (req, res) => {
-  try {
-    // Perform actions related to the notification
-    console.log('Notification received from Flutter.');
 
-    // Send a response back to the Flutter app
-    res.status(200).json({ status: 'placed' });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ status: 'error' });
-  }
-});
 
 // Login route
 router.post("/api/auth", async (req, res) => {
