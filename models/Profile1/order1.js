@@ -1,17 +1,12 @@
 const mongoose = require('mongoose');
 
 const orderSchema = new mongoose.Schema({
-  items: [
-    {
-      name: String,
-      price: Number,
-      quantity: Number,
-    },
-  ],
+  items: [{name: String,price: Number,quantity: Number,},],
   price: Number,
   name: String,
-  phone: String, // Adding 'phone' property assuming you want to include it
-  id: String,    // Adding 'id' property assuming you want to include it
+  phone: String, 
+  id: String,
+  token:String,    
 });
 
 const Order = mongoose.model('Order', orderSchema);
