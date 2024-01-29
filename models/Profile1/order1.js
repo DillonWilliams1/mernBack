@@ -5,7 +5,8 @@ const orderSchema = new mongoose.Schema({
   price: Number,
   name: String,
   phone: String, 
-  id: String,   
+  id: String,
+  token: String,
 });
 
 const Order = mongoose.model('Order', orderSchema);
