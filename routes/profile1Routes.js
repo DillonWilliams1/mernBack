@@ -7,11 +7,13 @@ const bcrypt = require("bcrypt");
 const Joi = require("joi");
 const Order = require('../models/Profile1/order1');
 const admin = require('firebase-admin');
-//crud funtions
 
 
+const serviceAccount = require('../test-project-6d955-firebase-adminsdk-3evvf-e3b3dc41af.json');
 
-//crud funtions
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+});
 
 router.post('/notify-flutter', (req, res) => {
   const message = {
