@@ -7,55 +7,6 @@ const bcrypt = require("bcrypt");
 const Joi = require("joi");
 const Order = require('../models/Profile1/order1');
 const Orderhistory = require('../models/Profile1/Orderhistory1');
-const admin = require('firebase-admin');
-
-
-const serviceAccount = require('../mongoappv2-firebase-adminsdk-rg25d-9ed858f9bf.json');
-
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-});
-
-router.post('/accept', (req, res) => {
-  const message = {
-    data: {
-      status: 'received'
-    },
-    // Use the FCM token of the Flutter app instance here
-    token: 'fQgtH8WGS7e7z33QsNVINf:APA91bEp1FKAKCYZKG2ZedNv1M7fXpauejx9HD76eicyUMeuSglpxYTD1m0NxozapvRyDVLO4Pj4diIgqbt7bdCYO0EcHBRLzyjQtV5q-kdHoWXtOZSuHq5B0jYp_Lux5V9KrPzXxb42',
-  };
-
-  admin.messaging().send(message)
-    .then((response) => {
-      console.log('Successfully sent message:', response);
-      res.status(200).send('Notification sent successfully');
-    })
-    .catch((error) => {
-      console.log('Error sending message:', error);
-      res.status(500).send('Error sending notification');
-    });
-});
-
-
-router.post('/reject', (req, res) => {
-  const message = {
-    data: {
-      status: 'rejected'
-    },
-    // Use the FCM token of the Flutter app instance here
-    token: 'fQgtH8WGS7e7z33QsNVINf:APA91bEp1FKAKCYZKG2ZedNv1M7fXpauejx9HD76eicyUMeuSglpxYTD1m0NxozapvRyDVLO4Pj4diIgqbt7bdCYO0EcHBRLzyjQtV5q-kdHoWXtOZSuHq5B0jYp_Lux5V9KrPzXxb42',
-  };
-
-  admin.messaging().send(message)
-    .then((response) => {
-      console.log('Successfully sent message:', response);
-      res.status(200).send('Notification sent successfully');
-    })
-    .catch((error) => {
-      console.log('Error sending message:', error);
-      res.status(500).send('Error sending notification');
-    });
-});
 
 
 //crud funtions
