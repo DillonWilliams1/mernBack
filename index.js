@@ -2,7 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const admin = require('firebase-admin');
+
 
 const profile1Routes = require('./routes/profile1Routes');
 const profile2Routes = require('./routes/profile2Routes')
@@ -13,12 +13,7 @@ const profile6Routes = require('./routes/profile6Routes')
 const profile7Routes = require('./routes/profile7Routes')
 
 
-const app = express();
-const serviceAccount = require('./test-project-6d955-firebase-adminsdk-3evvf-e3b3dc41af.json');
 
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-});
 
 app.use(express.json());
 app.use(cors());
