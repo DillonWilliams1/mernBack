@@ -6,7 +6,7 @@ const { User , validate } = require("../models/Profile1/User1");
 const bcrypt = require("bcrypt");
 const Joi = require("joi");
 const Order = require('../models/Profile1/order1');
-const Orderhistory = require('../models/Profile1/Orderhistory1');
+
 
 
 //crud funtions
@@ -123,40 +123,7 @@ router.get('/orderres', (req, res) => {
 });
 
 
-router.post('/Orderhistory', async (req, res) => {
-  try {
-    const { orderId } = req.body;
 
-    // Find the order by ID
-    const order = await Order.findById(orderId);
-    if (!order) {
-      return res.status(404).send('Order not found');
-    }
-
-    // Create a new accepted order entry
-    const  orderhistory= new Orderhistory({
-      orderId: order._id,
-      timestamp: Date.now(),
-      items: order.items,
-      price: order.price,
-      name: order.name,
-      phone: order.phone,
-      id: order.id,
-      // Add any additional fields you want to store for accepted orders
-    });
-
-
-    await orderhistory.save();
-
-    // Optionally, you can remove the accepted order from the original orders table
-    await Order.findByIdAndDelete(orderId);
-
-    res.status(200).send('Order accepted and stored in another table');
-  } catch (err) {
-    console.error(err);
-    res.status(500).send('Internal Server Error');
-  }
-});
 
 // Add this route to handle deleting orders
 router.delete('/orderres/:orderId', async (req, res) => {
