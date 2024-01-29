@@ -122,6 +122,21 @@ router.get('/orderres', (req, res) => {
     .catch(err => res.status(500).json({ error: err.message }));
 });
 
+router.post('/notify-flutter', (req, res) => {
+  const { type, orderId } = req.body;
+
+  // Handle the notification based on its type
+  if (type === 'order_accepted') {
+    // Perform actions related to an accepted order
+    console.log(`Order ${orderId} has been accepted.`);
+    
+    // You can send a response back to the React app if needed
+    res.json({ message: 'Notification received and processed.' });
+  } else {
+    // Handle other types of notifications if necessary
+    res.status(400).json({ error: 'Invalid notification type.' });
+  }
+});
 
 // Login route
 router.post("/api/auth", async (req, res) => {
