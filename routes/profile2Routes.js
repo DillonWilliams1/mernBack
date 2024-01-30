@@ -5,6 +5,13 @@ const SelectedMenu2Model =require('../models/Profile2/SelectedMenu2')
 const { User , validate } = require("../models/Profile2/User2");
 const bcrypt = require("bcrypt");
 const Joi = require("joi");
+const Order = require('../models/Profile2/Order2');
+const Orderhistory = require('../models/Profile2/Orderhistory2');
+const admin = require('firebase-admin');
+
+
+
+
 
 router.get('/', (req, res) => {
   Profile2Model.find({})
@@ -89,6 +96,147 @@ router.delete('/clearTable', (req, res) => {
 });
 
 
+router.post('/orders', async (req, res) => {
+  try {
+    const { items, price, name, phone, id, token } = req.body;
+
+    // Create a new order instance
+    const newOrder = new Order({
+      items,price,name,phone,id,token
+    });
+
+    // Save the order to the database
+    await newOrder.save();
+
+    // Send a response back to the Flutter app
+    res.status(200).json({ status: 'received' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ status: 'error' });
+  }
+});
+
+router.get('/orderres', (req, res) => {
+  Order.find({})
+    .then(data => res.json(data))
+    .catch(err => res.status(500).json({ error: err.message }));
+});
+
+
+router.post('/Orderhistory', async (req, res) => {
+  try {
+    const { orderId } = req.body;
+
+    // Find the order by ID
+    const order = await Order.findById(orderId);
+    if (!order) {
+      return res.status(404).send('Order not found');
+    }
+
+    // Create a new accepted order entry
+    const  orderhistory= new Orderhistory({
+      orderId: order._id,
+      timestamp: Date.now(),
+      items: order.items,
+      price: order.price,
+      name: order.name,
+      phone: order.phone,
+      id: order.id,
+      // Add any additional fields you want to store for accepted orders
+    });
+
+
+    await orderhistory.save();
+
+    // Optionally, you can remove the accepted order from the original orders table
+    await Order.findByIdAndDelete(orderId);
+
+    res.status(200).send('Order accepted and stored in another table');
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+// Add this route to handle deleting orders
+router.delete('/orderres/:orderId', async (req, res) => {
+  try {
+    const { orderId } = req.params;
+
+    // Remove the order from the Order table based on the orderId
+    await Order.findByIdAndDelete(orderId);
+
+    res.status(200).send('Order rejected and removed from the table');
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+
+router.get('/orderhistorytable', (req, res) => {
+  Orderhistory.find({})
+    .then(data => res.json(data))
+    .catch(err => res.status(500).json({ error: err.message }));
+});
+
+router.post('/accept' , async (req, res) => {
+  try {
+   
+    const { orderId } = req.body;
+
+    const order = await Order.findById(orderId);
+
+    const token = order.token;
+
+    // Use the FCM token from the retrieved data
+    const message = {
+      data: {
+        status: 'received'
+      },
+      token: token,
+    };
+
+    // Send the FCM message
+    const response = await admin.messaging().send(message);
+
+    console.log('Successfully sent message:', response);
+    res.status(200).send('Notification sent successfully');
+  } catch (error) {
+    console.error('Error sending notification:', error);
+    res.status(500).send('Error sending notification');
+  }
+});
+
+router.post('/reject' , async (req, res) => {
+  try {
+   
+    const { orderId } = req.body;
+
+    const order = await Order.findById(orderId);
+
+    const token = order.token;
+
+    // Use the FCM token from the retrieved data
+    const message = {
+      data: {
+        status: 'rejected'
+      },
+      token: token,
+    };
+
+    // Send the FCM message
+    const response = await admin.messaging().send(message);
+
+    console.log('Successfully sent message:', response);
+    res.status(200).send('Notification sent successfully');
+  } catch (error) {
+    console.error('Error sending notification:', error);
+    res.status(500).send('Error sending notification');
+  }
+});
+
+
 
 // Login route
 router.post("/api/auth", async (req, res) => {
@@ -165,4 +313,6 @@ router.post("/api/users", async (req, res) => {
 });
 
 module.exports = router;
+
+
 
